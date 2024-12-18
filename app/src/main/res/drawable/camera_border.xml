@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Lớp bóng đổ -->
+    <item android:top="0dp" android:left="0dp" android:right="0dp" android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="8px" /> <!-- Bo tròn viền với bán kính 8px -->
+            <solid android:color="#1A000000" /> <!-- 10% opacity black for shadow -->
+        </shape>
+    </item>
+
+    <!-- Lớp viền chính -->
+    <item android:top="0dp" android:left="0dp" android:right="0dp" android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="8px" /> <!-- Bo tròn viền với bán kính 8px -->
+            <stroke
+                android:width="2dp"
+                android:color="#2196F3" /> <!-- Bạn có thể thay đổi màu này nếu cần -->
+            <solid android:color="#00000000" /> <!-- Nền trong suốt -->
+        </shape>
+    </item>
+</layer-list>

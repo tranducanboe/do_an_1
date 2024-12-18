@@ -84,4 +84,7 @@ dependencies {
 
     // RecyclerView
     implementation("androidx.recyclerview:recyclerview:1.2.1")
+
+    //Gson
+    implementation("com.google.code.gson:gson:2.10.1")
 }

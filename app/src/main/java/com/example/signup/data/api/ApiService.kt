@@ -16,7 +16,4 @@ interface ApiService {
     @GET("/users")
     suspend fun getUsers(): List<User>
 
-    // Cập nhật phương thức login để trả về thông tin người dùng
-    @POST("login")
-    suspend fun login(@Body credentials: Map<String, String>): Response<User>
 }

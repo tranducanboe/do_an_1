@@ -1,6 +1,5 @@
 package com.example.signup.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,8 +9,8 @@ import com.example.signup.data.repository.UserRepository
 import kotlinx.coroutines.launch
 
 class LoginViewModel(private val userRepository: UserRepository) : ViewModel() {
-    private val _loginSuccess = MutableLiveData<Boolean>()
-    val loginSuccess: LiveData<Boolean> = _loginSuccess
+    private val _loginSuccess = MutableLiveData<User?>()
+    val loginSuccess: LiveData<User?> = _loginSuccess
 
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
@@ -19,6 +18,7 @@ class LoginViewModel(private val userRepository: UserRepository) : ViewModel() {
     private val _userList = MutableLiveData<List<User>>()
     val userList: LiveData<List<User>> = _userList
 
+    // Đăng nhập
     fun login(email: String, password: String) {
         if (email.isEmpty() || password.isEmpty()) {
             _error.value = "Email và mật khẩu không thể để trống"
@@ -28,21 +28,19 @@ class LoginViewModel(private val userRepository: UserRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 val user = userRepository.getUserByEmailAndPassword(email, password)
-
                 if (user != null) {
-                    _loginSuccess.value = true
-                    // Tự động tải danh sách người dùng sau khi đăng nhập
-                    fetchUserList()
+                    _loginSuccess.value = user
+                    fetchUserList() // Load danh sách người dùng sau khi đăng nhập
                 } else {
-                    _error.value = "Đăng nhập thất bại, email hoặc mật khẩu sai"
+                    _error.value = "Đăng nhập thất bại, email hoặc mật khẩu không chính xác"
                 }
             } catch (e: Exception) {
-                Log.e("1dsa", "Lỗi đăng nhập: ${e.message}", e)
-                _error.value = "Đăng nhập thất bại: ${e.message}"
+                _error.value = "Lỗi xảy ra khi đăng nhập: ${e.message}"
             }
         }
     }
 
+    // Lấy danh sách người dùng
     private fun fetchUserList() {
         viewModelScope.launch {
             try {

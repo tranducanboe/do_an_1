@@ -1,13 +1,11 @@
 package com.example.signup.ui
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.viewModels
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.signup.R
@@ -18,26 +16,33 @@ import com.example.signup.viewmodel.ViewModelFactory
 import com.google.android.material.textfield.TextInputEditText
 
 class LoginActivity : AppCompatActivity() {
-    // Sử dụng ViewModelProvider để khởi tạo ViewModel
-    private lateinit var viewModel: LoginViewModel
 
-    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var viewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        // Kiểm tra xem user đã đăng nhập hay chưa
+        val sharedPreferencesHelper = SharedPreferencesHelper(this)
+        val currentUser = sharedPreferencesHelper.getUser()
+
+        if (currentUser != null) {
+            // Nếu đã có user -> Tự động đăng nhập và chuyển đến HomeActivity
+            navigateToHome()
+            return // Không cần hiển thị màn hình đăng nhập
+        }
+
         setContentView(R.layout.activity_login)
 
-        // Khởi tạo ViewModel sử dụng ViewModelProvider
+        window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        or View.SYSTEM_UI_FLAG_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                )
+
+
         val factory = ViewModelFactory(UserRepository(RetrofitClient.getApiService()))
         viewModel = ViewModelProvider(this, factory)[LoginViewModel::class.java]
-
-        sharedPreferences = getSharedPreferences("user_pref", MODE_PRIVATE)
-
-        if (isUserLoggedIn()) {
-            navigateToHome()
-            return
-        }
 
         val emailInput = findViewById<TextInputEditText>(R.id.emailInput)
         val passwordInput = findViewById<TextInputEditText>(R.id.passwordInput)
@@ -53,12 +58,19 @@ class LoginActivity : AppCompatActivity() {
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
 
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             viewModel.login(email, password)
         }
 
-        viewModel.loginSuccess.observe(this) { success ->
-            if (success) {
-                saveUserLoggedInState(true)
+        viewModel.loginSuccess.observe(this) { user ->
+            if (user != null) {
+                // Lưu user vào SharedPreferences
+                sharedPreferencesHelper.saveUser(user)
+
                 Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
                 navigateToHome()
             }
@@ -69,16 +81,6 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    private fun saveUserLoggedInState(isLoggedIn: Boolean) {
-        val editor = sharedPreferences.edit()
-        editor.putBoolean("IS_LOGGED_IN", isLoggedIn)
-        editor.apply()
-    }
-
-    private fun isUserLoggedIn(): Boolean {
-        return sharedPreferences.getBoolean("IS_LOGGED_IN", false)
     }
 
     private fun navigateToHome() {

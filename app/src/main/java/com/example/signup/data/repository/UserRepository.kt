@@ -13,28 +13,28 @@ class UserRepository(private val apiService: ApiService) {
         return response.isSuccessful && response.body()?.isNotEmpty() == true
     }
 
-    // Thực hiện việc đăng ký người dùng mới và trả về phản hồi từ server.
+    // Đăng ký người dùng mới
     suspend fun registerUser(user: User): Response<User> {
         return apiService.registerUser(user)
     }
 
-    // Lấy danh sách người dùng, loại trừ người dùng hiện tại
+    // Lấy danh sách người dùng
     suspend fun getUsers(): List<User> {
-        val users = apiService.getUsers()
-        return users.filter { it.email != currentUser?.email }
+        val response = apiService.getUsers()
+        return response
     }
 
-    // Đăng nhập và lưu người dùng hiện tại
+    // Đăng nhập bằng email và mật khẩu
     suspend fun getUserByEmailAndPassword(email: String, password: String): User? {
-        val response = apiService.login(mapOf("email" to email, "password" to password))
-        return if (response.isSuccessful) {
-            currentUser = response.body()
-            currentUser
-        } else {
-            null
+        val response = apiService.checkEmailExists(email)
+        if (response.isSuccessful) {
+            val users = response.body()
+            val user = users?.find { it.password == password }
+            if (user != null) {
+                currentUser = user
+                return user
+            }
         }
+        return null
     }
-
-    // Phương thức để lấy người dùng hiện tại (nếu cần)
-    fun getCurrentUser(): User? = currentUser
 }
