@@ -38,7 +38,9 @@ class HomeActivity : AppCompatActivity() {
         // Kiểm tra xem người dùng đã đăng nhập chưa thông qua SharedPreferences
         val sharedPreferencesHelper = SharedPreferencesHelper(this)
         val currentUser = sharedPreferencesHelper.getUser()
-
+        if (currentUser != null) {
+            binding.txtName.text = currentUser.name
+        }
         if (currentUser == null) {
             // Nếu không có user, chuyển đến màn hình đăng nhập
             navigateToLogin()
@@ -92,9 +94,7 @@ class HomeActivity : AppCompatActivity() {
         val userRepository = UserRepository(apiService)
 
         CoroutineScope(Dispatchers.IO).launch {
-            val users = userRepository.getUsers() // API call
-
-            // Lọc danh sách người dùng, loại trừ người dùng hiện tại
+            val users = userRepository.getUsers()
             val filteredUsers = users.filter { it.email != currentUser.email }
 
             withContext(Dispatchers.Main) {
@@ -102,6 +102,7 @@ class HomeActivity : AppCompatActivity() {
                     onUserClick = { user ->
                         val intent = Intent(this@HomeActivity, ChatActivity::class.java)
                         intent.putExtra("USER_NAME", user.name)
+                        intent.putExtra("EMAIL", user.email)
                         startActivity(intent)
                     },
                     onCallClick = { user ->
@@ -118,6 +119,6 @@ class HomeActivity : AppCompatActivity() {
     private fun navigateToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
-        finish() // Đảm bảo HomeActivity không còn trong back stack
+        finish()
     }
 }
