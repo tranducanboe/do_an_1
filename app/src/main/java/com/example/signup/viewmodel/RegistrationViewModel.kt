@@ -53,10 +53,13 @@ class RegistrationViewModel(private val userRepository: UserRepository) : ViewMo
 
     fun register(email: String, password: String, name: String) {
         viewModelScope.launch {
+            // Kiểm tra email đã tồn tại
             if (userRepository.checkEmailExists(email)) {
                 _emailError.value = "Email đã tồn tại"
+            } else if (name.isBlank()) { // Kiểm tra tên có hợp lệ không
+                _nameError.value = "Tên không được để trống" // Hiển thị lỗi tên
             } else {
-                val user = User(id = null, email = email, password = password, name = name) // Truyền name vào User
+                val user = User(id = null, email = email, password = password, name = name, imageUrl = "") // Thêm imageUrl nếu cần
                 val response = userRepository.registerUser(user)
                 if (response.isSuccessful) {
                     _userId.value = response.body()?.id // Lưu id của người dùng
@@ -65,6 +68,7 @@ class RegistrationViewModel(private val userRepository: UserRepository) : ViewMo
             }
         }
     }
+
 
     private fun isValidEmail(email: String): Boolean {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()

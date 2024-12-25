@@ -1,130 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/white"
-    android:layout_height="match_parent">
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".ui.CallActivity">
+
+    <TextView
+        android:id="@+id/call_info_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Calling..."
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="20dp"
+        android:gravity="center" />
 
 
-    <FrameLayout
-        android:layout_width="120dp"
-        android:layout_height="213dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
-        android:background="@drawable/camera_border"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextureView
-            android:id="@+id/textureView"
-            android:layout_width="120dp"
-            android:layout_height="213dp" />
-    </FrameLayout>
-
-
-    <FrameLayout
-        android:id="@+id/bottomSheet"
+    <LinearLayout
+        android:id="@+id/buttons_layout"
+        android:paddingVertical="5dp"
+        android:layout_marginBottom="100dp"
+        android:layout_marginTop="50dp"
         android:layout_width="match_parent"
-        android:layout_height="161dp"
-        android:background="@android:color/transparent"
-        app:behavior_hideable="false"
-        app:behavior_peekHeight="180dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:visibility="invisible">
 
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/background_call"
-            android:gravity="center"
-            android:orientation="horizontal">
+        <androidx.cardview.widget.CardView
+            android:layout_marginEnd="15dp"
+            android:id="@+id/button_video"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            app:cardCornerRadius="35dp"
+            app:cardBackgroundColor="#1AA8FF">
 
             <LinearLayout
-                android:id="@+id/linearLayout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageButton
-                    android:id="@+id/btnMute"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/background_icon_micro"
-                    android:contentDescription="Mute"
-                    android:src="@drawable/ic_micro" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:text="Mute"
-                    android:textColor="@android:color/white" />
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
+                <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
+                    android:id="@+id/video_call_btn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="#1AA8FF"/>
             </LinearLayout>
+
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_marginStart="15dp"
+            android:id="@+id/button_audio"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            app:cardBackgroundColor="#1AA8FF"
+            app:cardCornerRadius="35dp">
 
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/linearLayout2"
-                app:layout_constraintStart_toEndOf="@+id/linearLayout"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
 
-                <ImageButton
-                    android:id="@+id/btnEnd"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/ic_close"
-                    android:contentDescription="End" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:text="End"
-                    android:textColor="@android:color/white" />
+                <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
+                    android:id="@+id/audio_call_btn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp" />
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/linearLayout2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="30dp"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageButton
-                    android:id="@+id/btnFlip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/background_icon_micro"
-                    android:contentDescription="Flip"
-                    android:src="@drawable/icon_camera" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:text="Flip"
-                    android:textColor="@android:color/white" />
-            </LinearLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </FrameLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

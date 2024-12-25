@@ -189,7 +189,7 @@
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Log in"
+        android:text="Sign up"
         android:textColor="@android:color/white"
         android:backgroundTint="@android:color/black"
         android:padding="12dp"
