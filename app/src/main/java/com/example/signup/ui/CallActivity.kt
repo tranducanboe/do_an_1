@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -16,6 +17,7 @@ import com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationBut
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser
 
 class CallActivity : AppCompatActivity() {
+
     private lateinit var textView: TextView
     private lateinit var videoCallBtn: ZegoSendCallInvitationButton
     private lateinit var audioCallBtn: ZegoSendCallInvitationButton
@@ -24,80 +26,73 @@ class CallActivity : AppCompatActivity() {
     private val PERMISSION_REQUEST_CODE = 1
     private val requiredPermissions = arrayOf(
         Manifest.permission.CAMERA,
-        Manifest.permission.RECORD_AUDIO
+        Manifest.permission.RECORD_AUDIO,
+        Manifest.permission.MODIFY_AUDIO_SETTINGS
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_call)
 
         initializeViews()
-        checkPermissionsAndSetup()
+
+        if (checkAndRequestPermissions()) {
+            setupCall()
+        }
+
+        setFullscreenMode()
     }
 
     private fun initializeViews() {
-        try {
-            textView = findViewById(R.id.call_info_text_view)
-            videoCallBtn = findViewById(R.id.video_call_btn)
-            audioCallBtn = findViewById(R.id.audio_call_btn)
-            buttonLayout = findViewById(R.id.buttons_layout)
-        } catch (e: Exception) {
-            Log.e("CallActivity", "Error initializing views: ${e.message}")
-            Toast.makeText(this, "Lỗi khởi tạo giao diện", Toast.LENGTH_SHORT).show()
-            finish()
-        }
-    }
-
-    private fun checkPermissionsAndSetup() {
-        val missingPermissions = requiredPermissions.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-
-        if (missingPermissions.isEmpty()) {
-            setupCall()
-        } else {
-            ActivityCompat.requestPermissions(
-                this,
-                missingPermissions.toTypedArray(),
-                PERMISSION_REQUEST_CODE
-            )
-        }
+        textView = findViewById(R.id.call_info_text_view)
+        videoCallBtn = findViewById(R.id.video_call_btn)
+        audioCallBtn = findViewById(R.id.audio_call_btn)
+        buttonLayout = findViewById(R.id.buttons_layout)
     }
 
     private fun setupCall() {
         val userId = intent.getStringExtra("userID")
-        val userName = intent.getStringExtra("USER_NAME")
+        val receiverName = intent.getStringExtra("USER_NAME")
 
-        if (userId == null || userName == null) {
-            Log.e("CallActivity", "Missing user information")
-            Toast.makeText(this, "Thiếu thông tin người dùng", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-
-        try {
-            textView.text = "Đang gọi cho $userName"
-            buttonLayout.visibility = View.VISIBLE
-
-            // Setup video call button
-            videoCallBtn.apply {
-                setIsVideoCall(true)
-                resourceID = "zego_uikit_call"
-                setInvitees(listOf(ZegoUIKitUser(userId)))
+        if (userId != null) {
+            try {
+                Log.d("CallActivity", "Thiết lập cuộc gọi cho user: $userId")
+                textView.text = "Đang gọi cho $receiverName!"
+                buttonLayout.visibility = View.VISIBLE
+                setupCallButtons(userId)
+            } catch (e: Exception) {
+                Log.e("CallActivity", "Lỗi khi thiết lập cuộc gọi: ${e.message}")
+                Toast.makeText(this,
+                    "Không thể thiết lập cuộc gọi: ${e.message}",
+                    Toast.LENGTH_SHORT).show()
+                finish()
             }
-
-            // Setup audio call button
-            audioCallBtn.apply {
-                setIsVideoCall(false)
-                resourceID = "zego_uikit_call"
-                setInvitees(listOf(ZegoUIKitUser(userId)))
-            }
-
-        } catch (e: Exception) {
-            Log.e("CallActivity", "Error setting up call: ${e.message}")
-            Toast.makeText(this, "Lỗi thiết lập cuộc gọi", Toast.LENGTH_SHORT).show()
+        } else {
+            Log.e("CallActivity", "userID là null")
+            textView.text = "Không thể xác định người nhận cuộc gọi!"
+            buttonLayout.visibility = View.GONE
+            Toast.makeText(this,
+                "Không thể xác định người nhận cuộc gọi",
+                Toast.LENGTH_SHORT).show()
             finish()
         }
+    }
+
+    private fun checkAndRequestPermissions(): Boolean {
+        val pendingPermissions = requiredPermissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (pendingPermissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(
+                this,
+                pendingPermissions.toTypedArray(),
+                PERMISSION_REQUEST_CODE
+            )
+            return false
+        }
+        return true
     }
 
     override fun onRequestPermissionsResult(
@@ -106,16 +101,49 @@ class CallActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                 setupCall()
             } else {
                 Toast.makeText(this,
-                    "Cần cấp đầy đủ quyền để thực hiện cuộc gọi",
+                    "Cần cấp quyền để thực hiện cuộc gọi",
                     Toast.LENGTH_SHORT).show()
                 finish()
             }
         }
+    }
+
+    private fun setupCallButtons(receiverId: String) {
+        try {
+            videoCallBtn.apply {
+                setIsVideoCall(true)
+                resourceID = "zego_uikit_call"
+                setInvitees(listOf(ZegoUIKitUser(receiverId)))
+            }
+
+            audioCallBtn.apply {
+                setIsVideoCall(false)
+                resourceID = "zego_uikit_call"
+                setInvitees(listOf(ZegoUIKitUser(receiverId)))
+            }
+
+            Log.d("CallActivity", "Thiết lập nút gọi thành công")
+        } catch (e: Exception) {
+            Log.e("CallActivity", "Lỗi khi thiết lập nút gọi: ${e.message}")
+            Toast.makeText(this,
+                "Không thể thiết lập nút gọi: ${e.message}",
+                Toast.LENGTH_SHORT).show()
+            finish()
+        }
+    }
+
+    private fun setFullscreenMode() {
+        window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        or View.SYSTEM_UI_FLAG_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                )
     }
 }
