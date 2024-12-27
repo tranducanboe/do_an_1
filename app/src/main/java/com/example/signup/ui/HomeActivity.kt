@@ -60,16 +60,10 @@ class HomeActivity : AppCompatActivity() {
         binding.imgSetting.setOnClickListener { view ->
             val popupMenu = PopupMenu(this, view)
             val menu = popupMenu.menu
-            menu.add("Cập nhật thông tin")
             menu.add("Đăng xuất")
 
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.title) {
-                    "Cập nhật thông tin" -> {
-                        Log.d("Settings", "Cập nhật thông tin người dùng")
-                        val intent = Intent(this, UpdateProfileActivity::class.java)
-                        startActivity(intent)
-                    }
                     "Đăng xuất" -> {
                         Log.d("Settings", "Đăng xuất")
                         SharedPreferencesHelper(this).clearUser()
